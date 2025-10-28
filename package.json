@@ -13,7 +13,7 @@
     "db:seed": "tsx --env-file .env src/seed.ts"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.2.2",
+    "@hookform/resolvers": "^3.10.0",
     "@payloadcms/db-mongodb": "^3.60.0",
     "@payloadcms/next": "^3.60.0",
     "@payloadcms/payload-cloud": "^3.60.0",
