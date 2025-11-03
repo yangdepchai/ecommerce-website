@@ -1,7 +1,8 @@
 import { Category } from "@/payload-types";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
-import { Where } from "payload";
+import { Sort, Where } from "payload";
 import { z } from "zod";
+import { sortValues } from "../search-params";
 
 export const productRouter = createTRPCRouter({
     getMany: baseProcedure
@@ -10,11 +11,23 @@ export const productRouter = createTRPCRouter({
             category: z.string().nullable().optional(),
             minPrice: z.string().nullable().optional(),
             maxPrice: z.string().nullable().optional(),
-
+            tags: z.array(z.string()).nullable().optional(),
+            sort: z.enum(sortValues).nullable().optional(),
         }),
     )
     .query(async({ctx,input})=>{
         const where: Where = {};
+        let sort: Sort = "-createdAt";
+
+        if (input.sort === "default"){
+            sort = "name";
+        }
+        if ( input.sort === "oldest"){
+            sort = "createdAt";
+        };
+        if ( input.sort === "newest"){
+            sort = "-createdAt";
+        }
         if(input.minPrice){
             where.price ={
                 greater_than_equal:input.minPrice
@@ -64,10 +77,17 @@ export const productRouter = createTRPCRouter({
 
             
         }
+
+        if (input.tags && input.tags.length > 0){
+            where["tags.name"] = {
+                in:input.tags,
+            };
+        };
         const data = await ctx.db.find({
             collection: 'products',
             depth:1,
             where,
+            sort,
         });
         return data;
     }),

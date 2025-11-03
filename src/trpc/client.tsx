@@ -19,13 +19,29 @@ function getQueryClient() {
   if (!browserQueryClient) browserQueryClient = makeQueryClient();
   return browserQueryClient;
 }
+// Xóa hàm getUrl cũ của bạn và thay bằng hàm này
 function getUrl() {
-  const base = (() => {
-    if (typeof window !== 'undefined') return '';
-    return process.env.NEXT_PUBLIC_AP_URL;
-  })();
-  return `${base}/api/trpc`;
+  // 1. Nếu chạy trên trình duyệt, dùng đường dẫn tương đối
+  if (typeof window !== 'undefined') {
+    return '/api/trpc';
+  }
+
+  // 2. Nếu chạy trên server Vercel (production)
+  if (process.env.VERCEL_URL) {
+    return `https://{process.env.VERCEL_URL}/api/trpc`;
+  }
+
+  // 3. Nếu chạy trên server local (development)
+  // Đảm bảo bạn có http:// ở đầu
+  return `http://localhost:${process.env.PORT ?? 3000}/api/trpc`;
 }
+// function getUrl() {
+//   const base = (() => {
+//     if (typeof window !== 'undefined') return '';
+//     return process.env.NEXT_PUBLIC_AP_URL;
+//   })();
+//   return `${base}/api/trpc`;
+// }
 export function TRPCReactProvider(
   props: Readonly<{
     children: React.ReactNode;

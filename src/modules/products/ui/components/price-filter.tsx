@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useState } from "react"; // 1. Import thêm useState
+import { ChangeEvent, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 interface Props {
