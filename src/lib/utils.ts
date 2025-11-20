@@ -4,7 +4,10 @@ import { twMerge } from "tailwind-merge"
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
-// (Đặt hàm này ở đâu đó, ví dụ: /lib/utils.ts)
+
+export function generateTenantUrl(tenantSlug: string) {
+  return `/tenants/${tenantSlug}`;
+}
 
 export function formatPrice(
   price: number | string,
