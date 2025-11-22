@@ -207,7 +207,6 @@ export interface Category {
   id: string;
   name: string;
   slug: string;
-  color?: string | null;
   parent?: (string | null) | Category;
   subcategories?: {
     docs?: (string | Category)[];
@@ -233,7 +232,7 @@ export interface Product {
   category?: (string | null) | Category;
   tags?: (string | Tag)[] | null;
   image?: (string | null) | Media;
-  refundPolicy?: ('30-day' | '14-day' | '7-day' | '3-day' | '1-day' | 'no-refunds') | null;
+  refundPolicy?: ('30 ngày' | '14 ngày' | '7 ngày' | '3 ngày' | '1 ngày' | 'không hoàn tiền') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -376,7 +375,6 @@ export interface MediaSelect<T extends boolean = true> {
 export interface CategoriesSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
-  color?: T;
   parent?: T;
   subcategories?: T;
   updatedAt?: T;

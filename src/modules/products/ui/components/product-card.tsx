@@ -34,7 +34,7 @@ export const ProductCard = ({
     }
     const formattedPrice = formatPrice(price);
     return (
-    <Link href={`/products/${id}`}>
+    <Link href={`${generateTenantUrl(tenantSlug)}/products/${id}`}>
         <div className="hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow border rounded-md bg-white overflow-hidden h-full flex flex-col">
             <div className="relative aspect-square">
                 <Image  
@@ -82,3 +82,4 @@ export const ProductCardSkeleton = () => {
         <div className="w-full aspect 3/4 bg-neutral-200 rounded-lg animate-pulse"/>
     );
 };
+// TODO: Thêm chức năng đánh giá sau

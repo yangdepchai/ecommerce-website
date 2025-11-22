@@ -7,121 +7,92 @@ const categories = [
     slug: "all",
   },
   {
-    name: "Công Nghệ & Điện Tử",
-    color: "#007BFF", // Màu Xanh Dương
-    slug: "cong-nghe-dien-tu",
+    name: "Tài Khoản & Bản Quyền",
+    slug: "tai-khoan-ban-quyen",
     subcategories: [
-      { name: "Điện Thoại & Phụ Kiện", slug: "dien-thoai-phu-kien" },
-      { name: "Máy Tính & Laptop", slug: "may-tinh-laptop" },
-      { name: "Thiết Bị Âm Thanh & Camera", slug: "am-thanh-camera" },
-      { name: "Linh Kiện & Phụ Tùng", slug: "linh-kien-phu-tung" },
-      { name: "Đồ Gia Dụng Thông Minh", slug: "gia-dung-thong-minh" },
+      { name: "Tài khoản Giải trí (Netflix, Spotify...)", slug: "tai-khoan-giai-tri" },
+      { name: "Tài khoản Học tập (Coursera, Udemy...)", slug: "tai-khoan-hoc-tap" },
+      { name: "Key Windows & Office", slug: "key-windows-office" },
+      { name: "Phần mềm Diệt Virus", slug: "phan-mem-diet-virus" },
+      { name: "Tài khoản VPN & IP", slug: "tai-khoan-vpn" },
     ],
   },
   {
-    name: "Thời Trang & Phụ Kiện",
-    color: "#E91E63", // Màu Hồng Đỏ
-    slug: "thoi-trang-phu-kien",
+    name: "Game & Nạp Thẻ",
+    slug: "game-nap-the",
     subcategories: [
-      { name: "Thời Trang Nam", slug: "thoi-trang-nam" },
-      { name: "Thời Trang Nữ", slug: "thoi-trang-nu" },
-      { name: "Giày Dép", slug: "giay-dep" },
-      { name: "Túi Xách & Ví", slug: "tui-xach-vi" },
-      { name: "Trang Sức & Đồng Hồ", slug: "trang-suc-dong-ho" },
+      { name: "Steam Wallet & Key Game", slug: "steam-wallet-key-game" },
+      { name: "Thẻ Garena & Zing Xu", slug: "the-garena-zing" },
+      { name: "Vật phẩm Game (Item/Skin)", slug: "vat-pham-game" },
+      { name: "Tài khoản Game", slug: "tai-khoan-game" },
+      { name: "Cày thuê & Dịch vụ Game", slug: "cay-thue-dich-vu" },
     ],
   },
   {
-    name: "Nhà Cửa & Đời Sống",
-    color: "#4CAF50", // Màu Xanh Lá Cây
-    slug: "nha-cua-doi-song",
+    name: "Thiết Kế & Đồ Họa",
+    slug: "thiet-ke-do-hoa",
     subcategories: [
-      { name: "Nội Thất & Trang Trí", slug: "noi-that-trang-tri" },
-      { name: "Thiết Bị Nhà Bếp", slug: "thiet-bi-nha-bep" },
-      { name: "Đồ Dùng Phòng Tắm", slug: "do-dung-phong-tam" },
-      { name: "Dụng Cụ Làm Vườn", slug: "dung-cu-lam-vuon" },
-      { name: "Văn Phòng Phẩm", slug: "van-phong-pham" },
+      { name: "Font chữ Việt hóa", slug: "font-chu" },
+      { name: "Logo & Banner Template", slug: "logo-banner-template" },
+      { name: "UI/UX Kits & Mockups", slug: "ui-ux-kits" },
+      { name: "Stock Ảnh & Vector", slug: "stock-anh-vector" },
+      { name: "Preset Lightroom & LUTs", slug: "preset-lightroom-luts" },
     ],
   },
   {
-    name: "Sắc Đẹp & Sức Khỏe",
-    color: "#FFC107", // Màu Vàng Hổ Phách
-    slug: "sac-dep-suc-khoe",
+    name: "Lập Trình & Mã Nguồn",
+    slug: "lap-trinh-ma-nguon",
     subcategories: [
-      { name: "Chăm Sóc Da Mặt", slug: "cham-soc-da-mat" },
-      { name: "Trang Điểm", slug: "trang-diem" },
-      { name: "Chăm Sóc Tóc & Cơ Thể", slug: "cham-soc-toc-co-the" },
-      { name: "Thực Phẩm Chức Năng", slug: "thuc-pham-chuc-nang" },
-      { name: "Thiết Bị Y Tế & Massage", slug: "thiet-bi-y-te" },
+      { name: "Website Themes & Templates", slug: "website-themes" },
+      { name: "WordPress Plugins", slug: "wordpress-plugins" },
+      { name: "Source Code Mobile App", slug: "source-code-app" },
+      { name: "Scripts & Code Snippets", slug: "scripts-code" },
+      { name: "Tool & Bot tự động hóa", slug: "tool-bot-auto" },
     ],
   },
   {
-    name: "Mẹ & Bé",
-    color: "#FF9800", // Màu Cam
-    slug: "me-va-be",
+    name: "Marketing & Dịch Vụ MXH",
+    slug: "marketing-dich-vu-mxh",
     subcategories: [
-      { name: "Thức Ăn Dặm & Sữa", slug: "thuc-an-sua" },
-      { name: "Đồ Chơi & Đồ Dùng Học Tập", slug: "do-choi-hoc-tap" },
-      { name: "Quần Áo Trẻ Em", slug: "quan-ao-tre-em" },
-      { name: "Xe Đẩy & Ghế Ăn", slug: "xe-day-ghe-an" },
+      { name: "Tăng Like/Follow/View", slug: "tang-tuong-tac" },
+      { name: "Tài khoản Quảng cáo (Ads)", slug: "tai-khoan-quang-cao" },
+      { name: "Email Marketing & Data", slug: "email-marketing-data" },
+      { name: "Content & Bài viết mẫu", slug: "content-bai-viet" },
+      { name: "Phần mềm SEO", slug: "phan-mem-seo" },
     ],
   },
   {
-    name: "Ô Tô, Xe Máy & Xe Đạp",
-    color: "#607D8B", // Màu Xám Xanh
-    slug: "oto-xe-may",
+    name: "Khóa Học & Ebook",
+    slug: "khoa-hoc-ebook",
     subcategories: [
-      { name: "Phụ Tùng Ô Tô", slug: "phu-tung-oto" },
-      { name: "Phụ Kiện Xe Máy", slug: "phu-kien-xe-may" },
-      { name: "Dầu Nhớt & Chăm Sóc Xe", slug: "dau-nhot-cham-soc" },
-      { name: "Xe Đạp & Xe Điện", slug: "xe-dap-xe-dien" },
+      { name: "Khóa học IT & Lập trình", slug: "khoa-hoc-it" },
+      { name: "Khóa học Ngoại ngữ", slug: "khoa-hoc-ngoai-ngu" },
+      { name: "Khóa học Marketing & Sale", slug: "khoa-hoc-marketing" },
+      { name: "Ebook & Sách nói", slug: "ebook-sach-noi" },
+      { name: "Tài liệu ôn thi", slug: "tai-lieu-on-thi" },
     ],
   },
   {
-    name: "Thể Thao & Du Lịch",
-    color: "#03A9F4", // Màu Xanh Lam Nhạt
-    slug: "the-thao-du-lich",
+    name: "Âm Thanh & Video",
+    slug: "am-thanh-video",
     subcategories: [
-      { name: "Dụng Cụ Tập Gym/Yoga", slug: "dung-cu-tap-gym" },
-      { name: "Trang Phục Thể Thao", slug: "trang-phuc-the-thao" },
-      { name: "Thiết Bị Cắm Trại & Leo Núi", slug: "cam-trai-leo-nui" },
-      { name: "Vali & Balo Du Lịch", slug: "vali-balo" },
+      { name: "Stock Music & Sound Effects", slug: "stock-music-sfx" },
+      { name: "Video Intro & Outro", slug: "video-intro-outro" },
+      { name: "Project After Effects/Premiere", slug: "project-ae-pr" },
+      { name: "Beat nhạc & Voice mẫu", slug: "beat-nhac-voice" },
     ],
   },
   {
-    name: "Thực Phẩm & Bách Hóa",
-    color: "#8BC34A", // Màu Xanh Lá Cây Nhạt
-    slug: "thuc-pham-bach-hoa",
+    name: "Tiện Ích & Khác",
+    slug: "tien-ich-khac",
     subcategories: [
-      { name: "Thực Phẩm Khô & Đóng Hộp", slug: "thuc-pham-kho" },
-      { name: "Rau Củ Quả Tươi", slug: "rau-cu-qua-tuoi" },
-      { name: "Đồ Uống & Nước Giải Khát", slug: "do-uong" },
-      { name: "Đặc Sản Vùng Miền", slug: "dac-san-vung-mien" },
+      { name: "Voucher & Mã giảm giá", slug: "voucher-giam-gia" },
+      { name: "Dịch vụ Server/Hosting", slug: "server-hosting" },
+      { name: "Tư vấn & Cài đặt phần mềm", slug: "tu-van-cai-dat" },
+      { name: "Sản phẩm số khác", slug: "san-pham-so-khac" },
     ],
   },
-  {
-    name: "Dịch Vụ & Sản Phẩm Số (Digital)",
-    color: "#9C27B0", // Màu Tím
-    slug: "dich-vu-san-pham-so",
-    subcategories: [
-      { name: "Thiết Kế Đồ Họa", slug: "thiet-ke-do-hoa" },
-      { name: "Phần Mềm & Ứng Dụng", slug: "phan-mem-ung-dung" },
-      { name: "Khóa Học Trực Tuyến", slug: "khoa-hoc-online" },
-      { name: "Ebook & Tài Liệu", slug: "ebook-tai-lieu" },
-    ],
-  },
-  {
-    name: "Sách & Văn Hóa",
-    color: "#795548", // Màu Nâu
-    slug: "sach-van-hoa",
-    subcategories: [
-      { name: "Sách Văn Học", slug: "sach-van-hoc" },
-      { name: "Sách Kinh Tế & Kỹ Năng", slug: "sach-kinh-te" },
-      { name: "Truyện Tranh & Manga", slug: "truyen-tranh" },
-      { name: "Nhạc Cụ & Phụ Kiện", slug: "nhac-cu-phu-kien" },
-    ],
-  },
-]
-
+];
 const seed = async () => {
     const payload = await getPayload({config});
     const adminTenant = await payload.create({
@@ -153,7 +124,6 @@ const seed = async () => {
             data: {
                 name: category.name,
                 slug:category.slug,
-                color:category.color,
                 parent: null,
             },
         });

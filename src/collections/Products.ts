@@ -40,8 +40,8 @@ export const Products: CollectionConfig = {
         {
             name:"refundPolicy",
             type:"select",
-            options:["30-day","14-day","7-day","3-day","1-day","no-refunds"],
-            defaultValue:"30-day",
+            options:["30 ngày","14 ngày","7 ngày","3 ngày","1 ngày","không hoàn tiền"],
+            defaultValue:"30 ngày",
         }
     ],
 };

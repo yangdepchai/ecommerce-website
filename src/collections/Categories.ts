@@ -18,10 +18,6 @@ export const Categories: CollectionConfig = {
         unique: true,
     },
     {
-        name:'color',
-        type:'text',
-    },
-    {
         name:'parent',
         type: 'relationship',
         relationTo:'categories',
