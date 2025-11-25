@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "generate:types": "payload generate:types",
-    "generate:importmap":"payload generate:importmap",
+    "generate:importmap": "payload generate:importmap",
     "db:fresh": "payload migrate:fresh",
     "db:seed": "tsx --env-file .env src/seed.ts"
   },
@@ -75,7 +75,8 @@
     "superjson": "^2.2.2",
     "tailwind-merge": "^3.3.1",
     "vaul": "^1.1.2",
-    "zod": "^3.24.2"
+    "zod": "^3.24.2",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

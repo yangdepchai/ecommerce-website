@@ -8,8 +8,19 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { LinkIcon, StarIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Fragment } from 'react';
+//import { CartButton } from '../components/cart-button';
 
+const CartButton = dynamic(
+    () => import("../components/cart-button").then(
+        (mod)=>mod.CartButton,
+    ),
+    {
+        ssr:false,
+        loading: () => <Button disabled className="flex-1 bg-white text-black">Thêm vào giỏ hàng</Button>
+    },
+);
 interface ProductViewProps {
     productId: string;
     tenantSlug: string;
@@ -91,12 +102,10 @@ export const ProductView = ({ productId, tenantSlug }: ProductViewProps) => {
                         <div className="border-t lg:border-t-0 lg:border-l h-full">
                             <div className="flex flex-col p-6 gap-4 border-b">
                                 <div className="flex flex-row items-center gap-2">
-                                    <Button 
-                                        variant="elevated"
-                                        className="flex-1"
-                                    >
-                                        Thêm vào giỏ hàng
-                                    </Button>
+                                    <CartButton
+                                        productId={productId}
+                                        tenantSlug={tenantSlug}
+                                    />
                                     <Button
                                         className="size-12"
                                         variant="elevated"
@@ -127,7 +136,7 @@ export const ProductView = ({ productId, tenantSlug }: ProductViewProps) => {
                                 >
                                     {[5,4,3,2,1].map((stars) => (
                                         <Fragment key={stars}>
-                                            <div className="font-medium">{stars} {stars === 1? "star" : "stars"}</div>
+                                            <div className="font-medium">{stars} {stars === 1? "sao" : "sao"}</div>
                                             <Progress
                                                 value={0}
                                                 className="h-[1lh]"

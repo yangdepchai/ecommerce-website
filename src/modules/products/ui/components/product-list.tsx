@@ -41,7 +41,6 @@ export const ProductList = ({ category,tenantSlug,narrowView}: Props) => {
             <div className="border border-black border-dashed flex items-center justify-center p-8 flex-col gap-y-4 bg-white w-full rounded-lg">
                 <InboxIcon/>
                 <p className="text-base font-medium">Không tìm thấy sản phẩm</p>
-
             </div>
         )
     }
