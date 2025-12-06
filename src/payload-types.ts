@@ -73,6 +73,7 @@ export interface Config {
     products: Product;
     tags: Tag;
     tenants: Tenant;
+    orders: Order;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -89,6 +90,7 @@ export interface Config {
     products: ProductsSelect<false> | ProductsSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -163,20 +165,15 @@ export interface User {
  */
 export interface Tenant {
   id: string;
-  /**
-   * Tên cửa hàng sẽ hiển thị trên giao diện người dùng
-   */
   name: string;
   /**
-   * Tên miền phụ cho cửa hàng
+   * URL của cửa hàng (VD: shop-quan-ao)
    */
   slug: string;
   image?: (string | null) | Media;
-  stripeAccountId: string;
-  /**
-   * Bạn không thể tạo sản phẩm cho đến khi bạn gửi chi tiết Stripe của mình.
-   */
-  stripeDetailsSubmitted?: boolean | null;
+  payosClientId: string;
+  payosApiKey: string;
+  payosChecksumKey: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -249,6 +246,30 @@ export interface Tag {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: string;
+  tenant: string | Tenant;
+  orderedBy: string | User;
+  items: {
+    product: string | Product;
+    quantity: number;
+    price: number;
+    id?: string | null;
+  }[];
+  total: number;
+  status: 'pending' | 'paid' | 'shipping' | 'delivered' | 'cancelled';
+  /**
+   * Mã đơn hàng số nguyên dùng riêng cho PayOS
+   */
+  payosOrderCode?: number | null;
+  paymentId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -277,6 +298,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tenants';
         value: string | Tenant;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: string | Order;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -414,8 +439,31 @@ export interface TenantsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   image?: T;
-  stripeAccountId?: T;
-  stripeDetailsSubmitted?: T;
+  payosClientId?: T;
+  payosApiKey?: T;
+  payosChecksumKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  tenant?: T;
+  orderedBy?: T;
+  items?:
+    | T
+    | {
+        product?: T;
+        quantity?: T;
+        price?: T;
+        id?: T;
+      };
+  total?: T;
+  status?: T;
+  payosOrderCode?: T;
+  paymentId?: T;
   updatedAt?: T;
   createdAt?: T;
 }
