@@ -93,14 +93,12 @@ export const Tenants: CollectionConfig = {
           name: "payosClientId",
           type: "text",
           label: "PayOS Client ID",
-          required: true,
           access: { read: canReadSensitiveField }, // Dùng hàm FieldAccess
         },
         {
           name: "payosApiKey",
           type: "text",
           label: "PayOS API Key",
-          required: true,
           access: { read: canReadSensitiveField },
         },
       ],
@@ -109,7 +107,6 @@ export const Tenants: CollectionConfig = {
       name: "payosChecksumKey",
       type: "text",
       label: "PayOS Checksum Key",
-      required: true,
       access: { read: canReadSensitiveField },
     },
   ],

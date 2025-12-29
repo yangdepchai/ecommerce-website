@@ -128,4 +128,31 @@ export const productRouter = createTRPCRouter({
             }))
         }
     }),
+    checkOwnership: baseProcedure
+    .input(z.object({ productId: z.string() }))
+    .query(async ({ ctx, input }) => {
+       const { db, user, userId } = ctx as any;
+       
+       // Kiểm tra session user (lấy từ auth thật)
+       const realUser = user || (ctx as any).session?.user;
+       
+       if (!realUser || !realUser.id) {
+          return { isOwned: false };
+       }
+
+       // Đếm đơn hàng
+       const count = await db.count({
+          collection: 'orders',
+          where: {
+             and: [
+                // Payload tự động so sánh ID kể cả khi orderedBy là object
+                { orderedBy: { equals: realUser.id } }, 
+                { status: { equals: 'paid' } },
+                { 'items.product': { equals: input.productId } }
+             ]
+          }
+       });
+
+       return { isOwned: count.totalDocs > 0 };
+    }),
 });

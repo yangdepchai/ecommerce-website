@@ -33,7 +33,7 @@ const poppins = Poppins({
 export const SignUpView = () => {
     const router = useRouter();
     const queryClient = useQueryClient();
-
+    
     const trpc = useTRPC();
 
     const register = useMutation(trpc.auth.register.mutationOptions({
@@ -53,18 +53,23 @@ export const SignUpView = () => {
             email:"",
             password:"",
             username:"",
+            payosClientId: "", 
+            payosApiKey: "",
+            payosChecksumKey: "",
         },
     });
 
     const onSubmit=(values:z.infer<typeof registerSchema>) => {
+        console.log("Nút đã được bấm! Dữ liệu:", values); // Debug xem nút có ăn không
         register.mutate(values);
     }
 
     const username = form.watch("username");
     const usernamErrors = form.formState.errors.username;
     const showPreview = username && !usernamErrors;
+    console.log("❓ Trạng thái Form:", form.formState.errors);
     return (
-        <div className="bg-[#F4F4F0] h-screen w-full lg:col-span-3 overflow-y-auto">
+        <div className="bg-[#F4F4F0] min-h-screen w-full lg:col-span-3 overflow-y-auto bp-20">
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
@@ -137,10 +142,9 @@ export const SignUpView = () => {
                         type="submit"
                         size="lg"
                         variant="elevated"
-                        className="bg-black text-white hover:bg-white hover:text-primary"
-                    
+                        className="bg-black text-white hover:bg-white hover:text-primary mt-4" // Thêm mt-4
                     >
-                        Tạo tài khoản
+                        {register.isPending ? "Đang xử lý..." : "Tạo tài khoản"}
                     </Button>
                 </form>
             </Form>

@@ -1,16 +1,16 @@
 "use client";
+
 import { StarRating } from '@/components/star-rating';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { formatPrice, generateTenantUrl } from '@/lib/utils';
 import { useTRPC } from '@/trpc/client';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { LinkIcon, StarIcon } from 'lucide-react';
+import { useSuspenseQuery, useQuery } from '@tanstack/react-query'; 
+import { LinkIcon, StarIcon, CheckCircle } from 'lucide-react'; 
 import Image from 'next/image';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { Fragment } from 'react';
-//import { CartButton } from '../components/cart-button';
 
 const CartButton = dynamic(
     () => import("../components/cart-button").then(
@@ -21,6 +21,7 @@ const CartButton = dynamic(
         loading: () => <Button disabled className="flex-1 bg-white text-black">Thêm vào giỏ hàng</Button>
     },
 );
+
 interface ProductViewProps {
     productId: string;
     tenantSlug: string;
@@ -28,9 +29,21 @@ interface ProductViewProps {
 
 export const ProductView = ({ productId, tenantSlug }: ProductViewProps) => {
     const trpc = useTRPC();
+    
+    // 1. Lấy thông tin sản phẩm
     const { data } = useSuspenseQuery(
         trpc.products.getOne.queryOptions({ id: productId }),
     );
+
+    // 2. Kiểm tra quyền sở hữu
+    const { data: ownership, isLoading: isCheckingOwnership } = useQuery(
+        trpc.products.checkOwnership.queryOptions({ productId })
+    );
+    
+    const isOwned = ownership?.isOwned;
+
+    // 3. Logic check hết hàng
+    const isOutOfStock = (data.isInfiniteStock === false) && (data.stock ?? 0) <= 0;
 
     return (
         <div className="px-4 lg:px-12 py-10">
@@ -42,6 +55,14 @@ export const ProductView = ({ productId, tenantSlug }: ProductViewProps) => {
                         fill
                         className="object-cover"
                     />
+                    {/* Badge trên ảnh lớn nếu hết hàng */}
+                    {!isOwned && isOutOfStock && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                            <span className="text-white text-3xl font-bold border-4 border-white px-8 py-2 rounded uppercase tracking-widest">
+                                HẾT HÀNG
+                            </span>
+                        </div>
+                    )}
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-6">
                     <div className="col-span-4">
@@ -93,34 +114,59 @@ export const ProductView = ({ productId, tenantSlug }: ProductViewProps) => {
                                 <p>{data.description}</p>
                             ) : (
                                 <p className="font-medium text-muted-foreground italic">Không có mô tả cho sản phẩm này.</p>
-
-
                             )}
                         </div>
                     </div>
                     <div className="col-span-2">
                         <div className="border-t lg:border-t-0 lg:border-l h-full">
                             <div className="flex flex-col p-6 gap-4 border-b">
-                                <div className="flex flex-row items-center gap-2">
-                                    <CartButton
-                                        productId={productId}
-                                        tenantSlug={tenantSlug}
-                                    />
-                                    <Button
-                                        className="size-12"
-                                        variant="elevated"
-                                        onClick={() => {}}
-                                        disabled={false}
-                                    >
-                                        <LinkIcon/>
-                                    </Button>
-                                </div>
-                                <p className="text-center font-medium">
-                                    {data.refundPolicy === "không hoàn tiền" 
-                                        ? "Không hỗ trợ hoàn tiền"
-                                        : `${data.refundPolicy} đảm bảo hoàn tiền`
-                                    }
-                                </p>
+                                
+                                {/* --- KHU VỰC NÚT MUA --- */}
+                                
+                                {/* TH1: Đang tải check sở hữu -> Hiện loading nhẹ để tránh nhảy layout */}
+                                {isCheckingOwnership ? (
+                                     <Button disabled className="w-full bg-gray-100 text-gray-400">
+                                        Đang kiểm tra...
+                                     </Button>
+                                ) : isOwned ? (
+                                    // TH2: ĐÃ MUA -> Hiện nút truy cập
+                                    <div className="flex flex-col gap-3 w-full animate-in fade-in">
+                                        <div className="flex items-center justify-center gap-2 text-green-700 bg-green-50 p-3 rounded-md border border-green-200">
+                                            <CheckCircle size={20} />
+                                            <span className="font-bold">Bạn đã sở hữu</span>
+                                        </div>
+                                        <Link href="/my-orders" className="w-full">
+                                            <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-bold h-12 text-lg shadow-md transition-all">
+                                                Truy cập nội dung
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                ) : isOutOfStock ? (
+                                    // TH3: CHƯA MUA NHƯNG HẾT HÀNG -> Nút xám Disable
+                                    <div className="flex flex-col gap-2 w-full">
+                                        <Button disabled className="w-full bg-gray-200 text-gray-500 h-12 text-lg font-bold border border-gray-300">
+                                            Sản phẩm đã hết hàng
+                                        </Button>
+                                        <p className="text-xs text-center text-gray-400">Vui lòng quay lại sau</p>
+                                    </div>
+                                ) : (
+                                    // TH4: CHƯA MUA VÀ CÒN HÀNG -> Nút mua bình thường
+                                    <div className="flex flex-row items-center gap-2">
+                                        <CartButton
+                                            productId={productId}
+                                            tenantSlug={tenantSlug}
+                                        />
+                                        <Button
+                                            className="size-12"
+                                            variant="elevated"
+                                            onClick={() => {}}
+                                            disabled={false}
+                                        >
+                                            <LinkIcon/>
+                                        </Button>
+                                    </div>
+                                )}
+                                {/* ------------------------ */}
                             </div>
                             <div className="p-6">
                                 <div className="flex items-center justify-between">

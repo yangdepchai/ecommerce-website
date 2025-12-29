@@ -88,6 +88,7 @@ export const Orders: CollectionConfig = {
     {
       name: "tenant",
       type: "relationship",
+      label: "Cửa hàng",
       relationTo: "tenants",
       required: true,
       index: true,
@@ -98,6 +99,7 @@ export const Orders: CollectionConfig = {
     {
       name: "orderedBy",
       type: "relationship",
+      label: "Người đặt hàng",
       relationTo: "users",
       required: true,
       hooks: {
@@ -115,16 +117,19 @@ export const Orders: CollectionConfig = {
     {
       name: "items",
       type: "array",
+      label: "Các mặt hàng",
       required: true,
       fields: [
         {
           name: "product",
+          label: "Sản phẩm",
           type: "relationship",
           relationTo: "products",
           required: true,
         },
         {
           name: "quantity",
+          label: "Số lượng",
           type: "number",
           min: 1,
           required: true,
@@ -132,12 +137,14 @@ export const Orders: CollectionConfig = {
         {
           name: "price",
           type: "number",
+          label: "Giá tại thời điểm đặt hàng",
           required: true,
         },
       ],
     },
     {
       name: "total",
+      label: "Tổng tiền",
       type: "number",
       required: true,
       min: 0,
@@ -145,11 +152,10 @@ export const Orders: CollectionConfig = {
     {
       name: "status",
       type: "select",
+      label: "Trạng thái đơn hàng",
       options: [
         { label: "Chờ thanh toán", value: "pending" },
         { label: "Đã thanh toán", value: "paid" },
-        { label: "Đang giao hàng", value: "shipping" },
-        { label: "Đã giao", value: "delivered" },
         { label: "Đã hủy", value: "cancelled" },
       ],
       defaultValue: "pending",

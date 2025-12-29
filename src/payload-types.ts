@@ -171,9 +171,9 @@ export interface Tenant {
    */
   slug: string;
   image?: (string | null) | Media;
-  payosClientId: string;
-  payosApiKey: string;
-  payosChecksumKey: string;
+  payosClientId?: string | null;
+  payosApiKey?: string | null;
+  payosChecksumKey?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -227,9 +227,13 @@ export interface Product {
    */
   price: number;
   category?: (string | null) | Category;
+  isInfiniteStock?: boolean | null;
+  stock?: number | null;
   tags?: (string | Tag)[] | null;
   image?: (string | null) | Media;
-  refundPolicy?: ('30 ngày' | '14 ngày' | '7 ngày' | '3 ngày' | '1 ngày' | 'không hoàn tiền') | null;
+  productType: 'text' | 'file';
+  payloadText?: string | null;
+  payloadFile?: (string | null) | Media;
   updatedAt: string;
   createdAt: string;
 }
@@ -259,7 +263,7 @@ export interface Order {
     id?: string | null;
   }[];
   total: number;
-  status: 'pending' | 'paid' | 'shipping' | 'delivered' | 'cancelled';
+  status: 'pending' | 'paid' | 'cancelled';
   /**
    * Mã đơn hàng số nguyên dùng riêng cho PayOS
    */
@@ -415,9 +419,13 @@ export interface ProductsSelect<T extends boolean = true> {
   description?: T;
   price?: T;
   category?: T;
+  isInfiniteStock?: T;
+  stock?: T;
   tags?: T;
   image?: T;
-  refundPolicy?: T;
+  productType?: T;
+  payloadText?: T;
+  payloadFile?: T;
   updatedAt?: T;
   createdAt?: T;
 }

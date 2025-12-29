@@ -4,44 +4,107 @@ export const Products: CollectionConfig = {
     slug: "products",
     fields: [
         {
-            name:"name",
-            type:"text",
+            name: "name",
+            type: "text",
+            label: "Tên sản phẩm",
             required: true,
         },
         {
-            name:"description",
-            type:"text",
+            name: "description",
+            type: "text",
+            label: "Mô tả",
         },
         {
-            name:"price",
-            type:"number",
-            required:true,
-            admin:{
-                description:"VNĐ"
+            name: "price",
+            type: "number",
+            label: "Giá",
+            required: true,
+            admin: {
+                description: "VNĐ"
             }
         },
         {
-            name:"category",
-            type:"relationship",
-            relationTo:"categories",
+            name: "category",
+            type: "relationship",
+            label: "Danh mục",
+            relationTo: "categories",
             hasMany: false,
         },
         {
-            name:"tags",
-            type:"relationship",
-            relationTo:"tags",
+            type: 'row',
+            fields: [
+                {
+                    name: 'isInfiniteStock',
+                    label: 'Kho hàng vô hạn (Ebook/Soft)',
+                    type: 'checkbox',
+                    defaultValue: true, // Mặc định là vô hạn cho dễ
+                },
+                {
+                    name: 'stock',
+                    label: 'Số lượng (Nếu không vô hạn)',
+                    type: 'number',
+                    defaultValue: 1, // Mặc định 1 cho acc game
+                    admin: {
+                        // Chỉ hiện ô nhập số lượng nếu KHÔNG TÍCH vô hạn
+                        condition: (data) => !data.isInfiniteStock,
+                    },
+                },
+            ],
+        },
+        {
+            name: "tags",
+            type: "relationship",
+            relationTo: "tags",
             hasMany: true,
         },
         {
             name: "image",
             type: "upload",
+            label: "Ảnh sản phẩm",
             relationTo: "media",
         },
         {
-            name:"refundPolicy",
-            type:"select",
-            options:["30 ngày","14 ngày","7 ngày","3 ngày","1 ngày","không hoàn tiền"],
-            defaultValue:"30 ngày",
-        }
+            type: 'row', // Gom 2 trường này nằm cùng 1 hàng cho đẹp
+            fields: [
+                {
+                    name: 'productType',
+                    label: 'Loại sản phẩm',
+                    type: 'select',
+                    defaultValue: 'text',
+                    options: [
+                        { label: 'Key / Tài khoản / Text', value: 'text' },
+                        { label: 'File tải về (Zip/PDF)', value: 'file' },
+                    ],
+                    required: true,
+                },
+            ]
+        },
+        {
+            name: 'payloadText',
+            label: 'Nội dung bàn giao (Key/Account)',
+            type: 'textarea',
+            admin: {
+                condition: (data) => data.productType === 'text',
+            },
+            // --- SỬA ĐOẠN ACCESS NÀY ---
+            access: {
+                // Chỉ cho phép đọc nếu ĐÃ ĐĂNG NHẬP (tức là Admin)
+                read: ({ req }) => !!req.user,
+            },
+        },
+        {
+            name: 'payloadFile',
+            label: 'File bàn giao',
+            type: 'upload',
+            relationTo: 'media',
+            admin: {
+                condition: (data) => data.productType === 'file',
+            },
+            // --- SỬA ĐOẠN ACCESS NÀY ---
+            access: {
+                // Chỉ cho phép đọc nếu ĐÃ ĐĂNG NHẬP (tức là Admin)
+                read: ({ req }) => !!req.user,
+            },
+        },
     ],
 };
