@@ -9,6 +9,7 @@ import { checkoutRouter } from '@/modules/checkout/server/procedures';
 import { paymentRouter } from './payment-router';
 import { paidProductRouter } from './paid-product-router';
 import { userRouter } from './user-router';
+import { reviewRouter } from './review-router';
 
 
 export const appRouter = createTRPCRouter({
@@ -20,7 +21,8 @@ export const appRouter = createTRPCRouter({
   payment:paymentRouter,
   products: productRouter,
   user: userRouter,
-  paidProduct: paidProductRouter
+  paidProduct: paidProductRouter,
+  reviews: reviewRouter,
 });
 // export type definition of API
 export type AppRouter = typeof appRouter;

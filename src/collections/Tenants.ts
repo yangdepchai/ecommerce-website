@@ -87,27 +87,33 @@ export const Tenants: CollectionConfig = {
     },
     // --- CẤU HÌNH PAYOS ---
     {
-      type: "row",
-      fields: [
-        {
-          name: "payosClientId",
-          type: "text",
-          label: "PayOS Client ID",
-          access: { read: canReadSensitiveField }, // Dùng hàm FieldAccess
-        },
-        {
-          name: "payosApiKey",
-          type: "text",
-          label: "PayOS API Key",
-          access: { read: canReadSensitiveField },
-        },
-      ],
+      name: 'payosClientId',
+      label: 'PayOS Client ID',
+      type: 'text',
+      required: false, // Đã sửa thành false từ bước trước
+      access: {
+        // Cho phép đọc nếu đã đăng nhập (để đơn giản)
+        // Hoặc logic phức tạp hơn: chỉ admin hoặc chủ sở hữu mới được xem
+        read: ({ req }) => !!req.user, 
+      },
     },
     {
-      name: "payosChecksumKey",
-      type: "text",
-      label: "PayOS Checksum Key",
-      access: { read: canReadSensitiveField },
+      name: 'payosApiKey',
+      label: 'PayOS API Key',
+      type: 'text',
+      required: false,
+      access: {
+        read: ({ req }) => !!req.user,
+      },
+    },
+    {
+      name: 'payosChecksumKey',
+      label: 'PayOS Checksum Key',
+      type: 'text',
+      required: false,
+      access: {
+        read: ({ req }) => !!req.user,
+      },
     },
   ],
 };

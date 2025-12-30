@@ -106,5 +106,26 @@ export const Products: CollectionConfig = {
                 read: ({ req }) => !!req.user,
             },
         },
+        {
+            name: 'reviewCount',
+            label: 'Số lượng đánh giá',
+            type: 'number',
+            defaultValue: 0,
+            admin: { readOnly: true }, // Chỉ để hệ thống tự update
+        },
+        {
+            name: 'rating',
+            label: 'Điểm đánh giá TB',
+            type: 'number',
+            defaultValue: 0,
+            admin: { readOnly: true },
+        },
+        {
+            name: 'starCounts',
+            label: 'Chi tiết số sao',
+            type: 'json', // Lưu dạng { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+            defaultValue: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+            admin: { readOnly: true },
+        },
     ],
 };

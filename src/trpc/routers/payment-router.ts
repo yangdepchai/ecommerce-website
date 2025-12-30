@@ -24,23 +24,33 @@ export const paymentRouter = createTRPCRouter({
   createPaymentLink: baseProcedure
     .input(z.object({
       orderId: z.string(),
-      productId: z.string(),
+      // SỬA 1: Cho phép productId là tùy chọn (optional) để hỗ trợ Giỏ hàng
+      productId: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       const { db: payload } = ctx;
-      const product = await payload.findByID({
-        collection: 'products',
-        id: input.productId
-      });
-      if (!product) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Sản phẩm không tồn tại' });
+
+      // SỬA 2: Chỉ check Stock lẻ nếu có productId (Mua ngay)
+      // Nếu mua giỏ hàng (productId rỗng/undefined) thì bỏ qua bước này
+      if (input.productId) {
+          const product = await payload.findByID({
+            collection: 'products',
+            id: input.productId
+          });
+          
+          if (!product) {
+            // Nếu gửi ID mà tìm không thấy thì mới báo lỗi
+            throw new TRPCError({ code: 'NOT_FOUND', message: 'Sản phẩm không tồn tại' });
+          }
+          
+          if (product.isInfiniteStock === false && (product.stock ?? 0) <= 0) {
+              throw new TRPCError({
+                  code: 'CONFLICT',
+                  message: 'Rất tiếc! Sản phẩm này vừa có người mua hết rồi.',
+              });
+          }
       }
-      if (product.isInfiniteStock === false && (product.stock ?? 0) <= 0) {
-             throw new TRPCError({
-                code: 'CONFLICT', // Mã lỗi xung đột
-                message: 'Rất tiếc! Sản phẩm này vừa có người mua hết rồi.',
-            });
-      }
+
       // 1. Lấy đơn hàng
       const orderRaw = await payload.findByID({
         collection: 'orders' as any,
@@ -68,20 +78,17 @@ export const paymentRouter = createTRPCRouter({
       const tenantRaw = await payload.findByID({
         collection: 'tenants' as any,
         id: tenantId,
+        // SỬA 3: QUAN TRỌNG - Thêm overrideAccess để luôn lấy được Key PayOS
+        overrideAccess: true, 
       });
       const tenant = tenantRaw as unknown as Tenant;
 
       if (!tenant.payosClientId || !tenant.payosApiKey || !tenant.payosChecksumKey) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Shop chưa cấu hình Key PayOS' });
       }
-      if (product.isInfiniteStock === false && (product.stock ?? 0) <= 0) {
-        throw new TRPCError({
-          code: 'CONFLICT',
-          message: 'Sản phẩm này vừa mới hết hàng!'
-        });
-      }
+
       try {
-        // --- BƯỚC 1: SET ENV (Quan trọng) ---
+        // --- BƯỚC 1: SET ENV ---
         process.env.PAYOS_CLIENT_ID = String(tenant.payosClientId).trim();
         process.env.PAYOS_API_KEY = String(tenant.payosApiKey).trim();
         process.env.PAYOS_CHECKSUM_KEY = String(tenant.payosChecksumKey).trim();
@@ -96,7 +103,7 @@ export const paymentRouter = createTRPCRouter({
           process.env.PAYOS_CHECKSUM_KEY
         );
 
-        // --- BƯỚC 3: TẠO LINK (Sửa lại đường dẫn hàm theo log X-Ray) ---
+        // --- BƯỚC 3: TẠO LINK ---
         const paymentOrderCode = order.payosOrderCode
           ? Number(order.payosOrderCode)
           : Number(String(Date.now()).slice(-10));
@@ -109,11 +116,8 @@ export const paymentRouter = createTRPCRouter({
 
         console.log("--> Đang gọi API PayOS...");
 
-        // SỬA TẠI ĐÂY: Dùng payos.paymentRequests.create
-        // (Hoặc fallback về createPaymentLink nếu version thay đổi)
         let res;
         if (payos.paymentRequests && typeof payos.paymentRequests.create === 'function') {
-          // Case 1: Version mới (Namespace)
           res = await payos.paymentRequests.create({
             orderCode: paymentOrderCode,
             amount: order.total,
@@ -122,7 +126,6 @@ export const paymentRouter = createTRPCRouter({
             returnUrl: returnUrl,
           });
         } else if (typeof payos.createPaymentLink === 'function') {
-          // Case 2: Version cũ (Direct)
           res = await payos.createPaymentLink({
             orderCode: paymentOrderCode,
             amount: order.total,
@@ -131,7 +134,7 @@ export const paymentRouter = createTRPCRouter({
             returnUrl: `${domain}/checkout/success?orderId=${order.id}`
           });
         } else {
-          throw new Error("Không tìm thấy hàm tạo thanh toán (createPaymentLink hoặc paymentRequests.create)");
+          throw new Error("Không tìm thấy hàm tạo thanh toán");
         }
 
         console.log("--> THÀNH CÔNG! Link:", res.checkoutUrl);
@@ -139,7 +142,6 @@ export const paymentRouter = createTRPCRouter({
 
       } catch (e: any) {
         console.error("--> LỖI PayOS:", e);
-        // Clean env
         delete process.env.PAYOS_CLIENT_ID;
         delete process.env.PAYOS_API_KEY;
         delete process.env.PAYOS_CHECKSUM_KEY;
@@ -147,6 +149,7 @@ export const paymentRouter = createTRPCRouter({
         throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: e.message });
       }
     }),
+
   checkOrderStatus: baseProcedure
     .input(z.object({
       orderId: z.string(),
@@ -176,6 +179,8 @@ export const paymentRouter = createTRPCRouter({
       const tenantRaw = await payload.findByID({
         collection: 'tenants' as any,
         id: tenantId,
+        // SỬA 4: Thêm overrideAccess ở đây nữa cho chắc
+        overrideAccess: true,
       });
       const tenant = tenantRaw as unknown as Tenant;
 
@@ -188,7 +193,6 @@ export const paymentRouter = createTRPCRouter({
         const payosModule = await import("@payos/node");
         const PayOSConstructor = (payosModule as any).PayOS || (payosModule as any).default;
 
-        // Setup ENV
         process.env.PAYOS_CLIENT_ID = String(tenant.payosClientId).trim();
         process.env.PAYOS_API_KEY = String(tenant.payosApiKey).trim();
         process.env.PAYOS_CHECKSUM_KEY = String(tenant.payosChecksumKey).trim();
@@ -200,20 +204,17 @@ export const paymentRouter = createTRPCRouter({
         );
 
         if (!order.payosOrderCode) {
-          console.error("--> [LỖI] Đơn hàng không có payosOrderCode");
           return { status: 'pending' };
         }
 
         console.log(`--> [CHECK STATUS] Gọi API PayOS lấy info đơn: ${order.payosOrderCode}`);
 
-        // --- SỬA LỖI TẠI ĐÂY: CHECK CẤU TRÚC HÀM ---
         let paymentLinkInfo;
         if (payos.paymentRequests && typeof payos.paymentRequests.get === 'function') {
           paymentLinkInfo = await payos.paymentRequests.get(order.payosOrderCode);
         } else if (typeof payos.getPaymentLinkInformation === 'function') {
           paymentLinkInfo = await payos.getPaymentLinkInformation(order.payosOrderCode);
         }
-        // ---------------------------------------------
 
         console.log("--> [PAYOS RESPONSE STATUS]:", paymentLinkInfo.status);
 
@@ -221,31 +222,23 @@ export const paymentRouter = createTRPCRouter({
         if (paymentLinkInfo.status === "PAID" || paymentLinkInfo.status === "Paid") {
           console.log("🔥 [Active Check] Đơn hàng đã thanh toán. Tiến hành cập nhật...");
 
-          // 1. Cập nhật trạng thái đơn hàng
           await payload.update({
             collection: 'orders',
             id: order.id,
             data: { status: 'paid' }
           });
 
-          // 2. --- THÊM LOGIC TRỪ TỒN KHO TẠI ĐÂY ---
+          // Logic trừ tồn kho
           if (order.items && order.items.length > 0) {
             for (const item of order.items) {
-              // Lấy ID sản phẩm
               const productId = typeof item.product === 'object' ? item.product.id : item.product;
-
-              // Lấy thông tin mới nhất của sản phẩm
               const product = await payload.findByID({ collection: 'products', id: productId });
 
-              // Logic kiểm tra hàng giới hạn (Legacy safe: so sánh === false)
-              // Nếu isInfiniteStock là false (Hàng giới hạn) VÀ Stock > 0
               if (product.isInfiniteStock === false && (product.stock ?? 0) > 0) {
-
                 await payload.update({
                   collection: 'products',
                   id: productId,
                   data: {
-                    // Trừ đi 1
                     stock: (product.stock ?? 0) - 1
                   }
                 });
@@ -253,13 +246,9 @@ export const paymentRouter = createTRPCRouter({
               }
             }
           }
-          // ----------------------------------------
 
           return { status: 'paid' };
-        }
-
-        // QUAN TRỌNG: Xử lý trạng thái HỦY
-        else if (paymentLinkInfo.status === "CANCELLED") {
+        } else if (paymentLinkInfo.status === "CANCELLED") {
           await payload.update({
             collection: 'orders',
             id: order.id,

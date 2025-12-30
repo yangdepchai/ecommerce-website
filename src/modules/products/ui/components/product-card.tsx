@@ -15,8 +15,8 @@ interface ProductCardProps {
     imageUrl?: string | null;
     tenantSlug: string;
     tenantImageUrl?: string | null;
-    reviewRating: number;
-    reviewCount: number;
+    reviewRating: number; // Điểm trung bình
+    reviewCount: number;  // Số lượng đánh giá
     price: number;
     isInfiniteStock: boolean;
     stock: number;
@@ -37,9 +37,9 @@ export const ProductCard = ({
     const router = useRouter();
     const trpc = useTRPC();
     
-    // Logic check hết hàng: Không vô hạn VÀ (stock null hoặc <= 0)
-    // Dùng (stock ?? 0) để an toàn nếu stock undefined
+    // Logic check hết hàng
     const isOutOfStock = (isInfiniteStock === false) && (stock ?? 0) <= 0;
+
     // API check sở hữu
     const { data: ownership } = useQuery(
         trpc.products.checkOwnership.queryOptions({ productId: id })
@@ -55,6 +55,10 @@ export const ProductCard = ({
 
     const formattedPrice = formatPrice(price);
     const productHref = `${generateTenantUrl(tenantSlug)}/products/${id}`;
+
+    // --- XỬ LÝ ĐIỂM ĐÁNH GIÁ ---
+    // Format về 1 chữ số thập phân (ví dụ: 4.5)
+    const displayRating = reviewRating ? Number(reviewRating).toFixed(1) : "0.0";
 
     return (
         <Link href={productHref}>
@@ -76,7 +80,7 @@ export const ProductCard = ({
                         </div>
                     )}
 
-                    {/* Badge: Hết hàng (Chỉ hiện nếu chưa mua) */}
+                    {/* Badge: Hết hàng */}
                     {!isOwned && isOutOfStock && (
                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
                              <span className="border-2 border-white text-white px-3 py-1 font-bold rounded uppercase tracking-wider">
@@ -105,30 +109,34 @@ export const ProductCard = ({
                         <p className="text-sm underline font-medium text-gray-500">{tenantSlug}</p>
                     </div>
 
+                    {/* --- HIỂN THỊ ĐÁNH GIÁ (Đã tối ưu) --- */}
                     {reviewCount > 0 && (
-                        <div className="flex items-center gap-1">
-                            <StarIcon className="size-3.5 fill-yellow-400 text-yellow-400" />
-                            <p className="text-sm font-medium text-gray-600">
-                                {reviewRating} ({reviewCount})
+                        <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1 bg-yellow-100/50 px-1.5 py-0.5 rounded">
+                                <StarIcon className="size-3 fill-yellow-500 text-yellow-500" />
+                                <span className="text-xs font-bold text-yellow-700 pt-[1px]">
+                                    {displayRating}
+                                </span>
+                            </div>
+                            <p className="text-xs text-gray-500 font-medium pt-[1px]">
+                                ({reviewCount} đánh giá)
                             </p>
                         </div>
                     )}
+                    {/* ------------------------------------- */}
                 </div>
 
                 {/* Phần Giá tiền / Trạng thái */}
                 <div className="p-4">
                     {isOwned ? (
-                        // Ưu tiên 1: Đã mua -> Hiện nút xem
                         <div className="px-3 py-1.5 border border-green-200 bg-green-50 w-fit rounded-md">
                             <p className="text-sm font-bold text-green-700">Xem ngay</p>
                         </div>
                     ) : isOutOfStock ? (
-                        // Ưu tiên 2: Hết hàng -> Hiện chữ xám
                         <div className="px-3 py-1.5 bg-gray-100 w-fit rounded-md">
                              <p className="text-sm font-medium text-gray-500">Đã bán hết</p>
                         </div>
                     ) : (
-                        // Ưu tiên 3: Còn hàng -> Hiện giá
                         <div className="relative px-2 py-1 border bg-white w-fit group-hover:bg-gray-50 transition-colors">
                             <p className="text-sm font-medium">{formattedPrice}đ</p>
                         </div>

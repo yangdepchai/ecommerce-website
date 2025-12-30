@@ -74,6 +74,7 @@ export interface Config {
     tags: Tag;
     tenants: Tenant;
     orders: Order;
+    reviews: Review;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -91,6 +92,7 @@ export interface Config {
     tags: TagsSelect<false> | TagsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
+    reviews: ReviewsSelect<false> | ReviewsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -234,6 +236,17 @@ export interface Product {
   productType: 'text' | 'file';
   payloadText?: string | null;
   payloadFile?: (string | null) | Media;
+  reviewCount?: number | null;
+  rating?: number | null;
+  starCounts?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -274,6 +287,19 @@ export interface Order {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews".
+ */
+export interface Review {
+  id: string;
+  product: string | Product;
+  user: string | User;
+  rating: number;
+  comment: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -306,6 +332,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'orders';
         value: string | Order;
+      } | null)
+    | ({
+        relationTo: 'reviews';
+        value: string | Review;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -426,6 +456,9 @@ export interface ProductsSelect<T extends boolean = true> {
   productType?: T;
   payloadText?: T;
   payloadFile?: T;
+  reviewCount?: T;
+  rating?: T;
+  starCounts?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -472,6 +505,18 @@ export interface OrdersSelect<T extends boolean = true> {
   status?: T;
   payosOrderCode?: T;
   paymentId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews_select".
+ */
+export interface ReviewsSelect<T extends boolean = true> {
+  product?: T;
+  user?: T;
+  rating?: T;
+  comment?: T;
   updatedAt?: T;
   createdAt?: T;
 }
