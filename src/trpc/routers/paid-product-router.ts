@@ -13,14 +13,14 @@ export const paidProductRouter = createTRPCRouter({
         throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Bạn cần đăng nhập' });
       }
 
-      // 1. Kiểm tra: User này đã có đơn hàng nào CHỨA sản phẩm này và đã PAID chưa?
+      // 1. Kiểm tra quyền sở hữu (Giữ nguyên)
       const orders = await db.find({
         collection: 'orders',
         where: {
           and: [
-            { orderedBy: { equals: session.user.id } }, // Đơn của tôi
-            { status: { equals: 'paid' } },             // Đã thanh toán
-            { 'items.product': { equals: input.productId } } // Có sản phẩm này
+            { orderedBy: { equals: session.user.id } }, 
+            { status: { equals: 'paid' } },            
+            { 'items.product': { equals: input.productId } } 
           ]
         }
       });
@@ -29,7 +29,7 @@ export const paidProductRouter = createTRPCRouter({
          throw new TRPCError({ code: 'FORBIDDEN', message: 'Bạn chưa mua hoặc đơn chưa thanh toán xong.' });
       }
 
-      // 2. Nếu đã mua -> Lấy nội dung mật từ Product
+      // 2. Lấy sản phẩm (Giữ nguyên)
       const productRaw = await db.findByID({
         collection: 'products',
         id: input.productId,
@@ -37,11 +37,20 @@ export const paidProductRouter = createTRPCRouter({
       
       if (!productRaw) throw new TRPCError({ code: 'NOT_FOUND' });
 
-      // 3. Trả về dữ liệu (Lúc này mới lộ ra cho Frontend)
+      // 3. --- SỬA ĐOẠN TRẢ VỀ (QUAN TRỌNG) ---
+      // Mục tiêu: Không trả về 'url' gốc của file payloadFile
+      
+      const fileData = productRaw.payloadFile as any;
+
       return {
         type: productRaw.productType, 
         text: productRaw.payloadText, 
-        file: productRaw.payloadFile, 
+        // Thay vì trả nguyên cục fileData (có chứa url lộ), ta chỉ trả về filename
+        file: fileData ? {
+            filename: fileData.filename,
+            filesize: fileData.filesize,
+            // url: fileData.url <--- TUYỆT ĐỐI KHÔNG TRẢ VỀ CÁI NÀY
+        } : null, 
       };
     }),
 });

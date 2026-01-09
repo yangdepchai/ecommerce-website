@@ -16,9 +16,10 @@ interface Props {
 }
 
 export const ProductList = ({ category, tenantSlug, narrowView }: Props) => {
+    // 1. Lấy toàn bộ filters (bao gồm cả 'q') từ URL thông qua nuqs
     const [filters] = useProductFilters();
     const trpc = useTRPC();
-    
+
     const {
         data,
         hasNextPage,
@@ -27,6 +28,7 @@ export const ProductList = ({ category, tenantSlug, narrowView }: Props) => {
     } = useSuspenseInfiniteQuery(
         trpc.products.getMany.infiniteQueryOptions(
             {
+                // 2. Truyền filters vào API (đã bao gồm q, sort, price, tags...)
                 ...filters,
                 category,
                 tenantSlug,
@@ -40,11 +42,17 @@ export const ProductList = ({ category, tenantSlug, narrowView }: Props) => {
         )
     );
 
+    // 3. Xử lý trường hợp không có dữ liệu
     if (data.pages?.[0]?.docs.length === 0) {
         return (
-            <div className="border border-black border-dashed flex items-center justify-center p-8 flex-col gap-y-4 bg-white w-full rounded-lg">
-                <InboxIcon />
-                <p className="text-base font-medium">Không tìm thấy sản phẩm</p>
+            <div className="border border-dashed border-gray-300 flex items-center justify-center p-16 flex-col gap-y-4 bg-white w-full rounded-lg text-gray-500">
+                <InboxIcon className="size-10" />
+                <p className="text-base font-medium">
+                    {filters.q 
+                        ? `Không tìm thấy sản phẩm nào cho từ khóa "${filters.q}"`
+                        : "Không tìm thấy sản phẩm nào"
+                    }
+                </p>
             </div>
         )
     }
@@ -52,7 +60,7 @@ export const ProductList = ({ category, tenantSlug, narrowView }: Props) => {
     return (
         <>
             <div className={cn(
-                // Sửa lỗi chính tả: 'gird-cols-1' -> 'grid-cols-1'
+                // 4. Grid Responsive chuẩn
                 "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4",
                 narrowView && "lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3"
             )}>
@@ -66,22 +74,24 @@ export const ProductList = ({ category, tenantSlug, narrowView }: Props) => {
                         tenantImageUrl={product.tenant.image?.url}
                         price={product.price}
                         
-                        // 1. Cập nhật dữ liệu đánh giá thật (Database)
+                        // 5. Dữ liệu đánh giá từ Database
                         reviewRating={product.rating || 0}
                         reviewCount={product.reviewCount || 0}
 
-                        // 2. Cập nhật dữ liệu tồn kho
+                        // 6. Logic tồn kho an toàn (Mặc định là vô hạn nếu null)
                         isInfiniteStock={product.isInfiniteStock ?? true}
                         stock={product.stock ?? 0}
                     />
                 ))}
             </div>
+            
             <div className="flex justify-center pt-8">
                 {hasNextPage && (
                     <Button
                         disabled={isFetchingNextPage}
                         onClick={() => fetchNextPage()}
                         variant="elevated"
+                        className="min-w-[120px]"
                     >
                         {isFetchingNextPage ? "Đang tải..." : "Hiện thêm..."}
                     </Button>
@@ -94,7 +104,6 @@ export const ProductList = ({ category, tenantSlug, narrowView }: Props) => {
 export const ProductListSkeleton = ({ narrowView }: Props) => {
     return (
         <div className={cn(
-            // Sửa lỗi chính tả tương tự ở Skeleton
             "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4",
             narrowView && "lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3"
         )}>

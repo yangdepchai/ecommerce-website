@@ -35,6 +35,7 @@ export const productRouter = createTRPCRouter({
             tags: z.array(z.string()).nullable().optional(),
             sort: z.enum(sortValues).nullable().optional(),
             tenantSlug: z.string().nullable().optional(),
+            q: z.string().optional(), // Đã có input
         }),
     )
     .query(async({ctx,input})=>{
@@ -50,6 +51,16 @@ export const productRouter = createTRPCRouter({
         if ( input.sort === "newest"){
             sort = "-createdAt";
         }
+        
+        // --- LOGIC TÌM KIẾM (Đã thêm) ---
+        if (input.q) {
+            where.name = {
+                // Đổi 'contains' thành 'like' để hỗ trợ tìm kiếm tốt hơn trên Mongo
+                like: input.q, 
+            };
+        }
+        // -------------------------------
+
         if(input.minPrice){
             where.price ={
                 greater_than_equal:input.minPrice
@@ -80,9 +91,6 @@ export const productRouter = createTRPCRouter({
                 }
             });
 
-
-
-           
             const formattedData = categoriesData.docs.map((doc) => ({
                         ...doc,
                         subcategories:(doc.subcategories?.docs ?? []).map((doc) =>({
@@ -98,12 +106,10 @@ export const productRouter = createTRPCRouter({
                 subcategoriesSlugs.push(
                     ...parentCategory.subcategories.map((subcategory) => subcategory.slug)
                 )
-            where["category.slug"] = {
-                in: [parentCategory.slug, ...subcategoriesSlugs]
-            }    
+                where["category.slug"] = {
+                    in: [parentCategory.slug, ...subcategoriesSlugs]
+                }    
             }
-
-            
         }
 
         if (input.tags && input.tags.length > 0){
@@ -111,10 +117,11 @@ export const productRouter = createTRPCRouter({
                 in:input.tags,
             };
         };
+        
         const data = await ctx.db.find({
             collection: 'products',
             depth:2,
-            where,
+            where, // Biến where này giờ đã chứa điều kiện tìm kiếm
             sort,
             page: input.cursor,
             limit: input.limit,
